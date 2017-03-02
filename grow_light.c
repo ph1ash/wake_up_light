@@ -7,6 +7,7 @@
 
 #define ON 1
 #define OFF 0
+//#define DEBUG
 
 //Wake up time info
 static uint8_t wake_up_hour = 6;
@@ -137,10 +138,12 @@ int main(void)
     
     curr_time = get_time_of_day();
    
-    /*while(1)
+#ifdef DEBUG
+    while(1)
     {
         debug_loop(m_light);
-    }*/
+    }
+#endif
 
     //Loop every minute to see if the light should be turned on
     while(1)
