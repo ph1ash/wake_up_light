@@ -42,8 +42,8 @@ void turn_device(int state, char* gpio_number)
 {
     char value_path[128];
     strcpy(value_path, "/sys/class/gpio/");
-    strcpy(value_path, gpio_number);
-    strcpy(value_path, "/value");  
+    strcat(value_path, gpio_number);
+    strcat(value_path, "/value");  
 
     FILE *f = fopen(value_path, "w");
     if (f == NULL)
@@ -77,14 +77,14 @@ void set_gpio_direction(char* gpio_number)
     }
     else
     {
-        fprintf(f, "1019");
+        fprintf(f, gpio_number);
     }
     fclose(f);
 
     char direction_path[128];
     strcpy(direction_path, "/sys/class/gpio/");
-    strcpy(direction_path, gpio_number);
-    strcpy(direction_path, "/direction");
+    strcat(direction_path, gpio_number);
+    strcat(direction_path, "/direction");
 
     f = fopen(direction_path, "w");
     if (f == NULL)
@@ -108,14 +108,23 @@ Light_t *init(Light_t *light)
     new_light->light_gpio = "gpio1019";
     new_light->fan_gpio = "gpio1020";
 
+    set_gpio_direction(new_light->light_gpio);
+    set_gpio_direction(new_light->fan_gpio);
+
     return new_light;
 }
 
 void debug_loop(Light_t *light)
 {
+    printf("Turning things on");
+    fflush(stdout);
     light->turn_light(ON, light->light_gpio);
+    light->turn_fan(ON, light->fan_gpio);
     sleep(10);
+    printf("Turning things off");
+    fflush(stdout);
     light->turn_light(OFF, light->light_gpio);
+    light->turn_fan(OFF, light->fan_gpio);
     sleep(10);
 }
 
