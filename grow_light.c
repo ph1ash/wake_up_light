@@ -42,7 +42,7 @@ struct tm *get_time_of_day(void)
 void turn_device(int state, char* gpio_number)
 {
     char value_path[128];
-    strcpy(value_path, "/sys/class/gpio/");
+    strcpy(value_path, "/sys/class/gpio/gpio");
     strcat(value_path, gpio_number);
     strcat(value_path, "/value");  
 
@@ -50,7 +50,8 @@ void turn_device(int state, char* gpio_number)
     if (f == NULL)
     {
         printf("Error accessing GPIO\n");
-        exit(1);
+        printf("%s\n", value_path);
+	exit(1);
     }
     else
     {
@@ -74,7 +75,7 @@ void set_gpio_direction(char* gpio_number)
     if (f == NULL)
     {
         printf("Error exporting\n");
-        exit(1);
+	exit(1);
     }
     else
     {
@@ -83,7 +84,7 @@ void set_gpio_direction(char* gpio_number)
     fclose(f);
 
     char direction_path[128];
-    strcpy(direction_path, "/sys/class/gpio/");
+    strcpy(direction_path, "/sys/class/gpio/gpio");
     strcat(direction_path, gpio_number);
     strcat(direction_path, "/direction");
 
@@ -91,7 +92,8 @@ void set_gpio_direction(char* gpio_number)
     if (f == NULL)
     {
         printf("Error opening GPIO direction\n");
-        exit(1);
+        printf("%s\n", direction_path);
+	exit(1);
     }
     else
     {
@@ -106,8 +108,8 @@ Light_t *init(Light_t *light)
     Light_t *new_light = malloc(sizeof(Light_t));
     new_light->turn_light = &turn_device;
     new_light->turn_fan = &turn_device;
-    new_light->light_gpio = "gpio1019";
-    new_light->fan_gpio = "gpio1020";
+    new_light->light_gpio = "1019";
+    new_light->fan_gpio = "1020";
 
     set_gpio_direction(new_light->light_gpio);
     set_gpio_direction(new_light->fan_gpio);
@@ -134,7 +136,7 @@ int main(void)
     Light_t *m_light = malloc(sizeof(Light_t));
     m_light = init(m_light);
 
-	struct tm *curr_time;
+    struct tm *curr_time;
     
     curr_time = get_time_of_day();
    
@@ -155,7 +157,7 @@ int main(void)
      	printf("Current time = %d\n", hour);
         fflush(stdout);
 
-        if ((hour >= wake_up_hour) && (hour <= shutdown_hour))
+        if ((hour >= wake_up_hour) && (hour < shutdown_hour))
         {
             m_light->turn_light(ON, m_light->light_gpio);
             m_light->turn_fan(OFF, m_light->fan_gpio);
